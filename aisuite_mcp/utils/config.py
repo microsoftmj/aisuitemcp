@@ -63,6 +63,8 @@ def load_env_config(env_file: Optional[str] = None) -> Dict[str, Any]:
         "MISTRAL_API_KEY",
         "COHERE_API_KEY",
         "HUGGINGFACE_API_KEY",
+        "XAI_API_KEY",
+        "XAI_API_BASE",
         "LOG_LEVEL",
         "ENABLE_SEARCH_TOOL",
         "DEFAULT_GENERATOR_MODEL",
@@ -132,5 +134,12 @@ def get_provider_configs(config: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     # Hugging Face
     if "HUGGINGFACE_API_KEY" in config:
         provider_configs["huggingface"] = {"api_key": config["HUGGINGFACE_API_KEY"]}
+    
+    # xAI (Grok)
+    if "XAI_API_KEY" in config:
+        xai_config = {"api_key": config["XAI_API_KEY"]}
+        if "XAI_API_BASE" in config:
+            xai_config["api_base"] = config["XAI_API_BASE"]
+        provider_configs["xai"] = xai_config
     
     return provider_configs
