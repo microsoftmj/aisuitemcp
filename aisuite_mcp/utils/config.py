@@ -21,11 +21,13 @@ logger = logging.getLogger("aisuite_mcp.utils.config")
 # Default configuration values
 DEFAULT_CONFIG = {
     "DEFAULT_GENERATOR_MODEL": "openai:gpt-4o",
-    "DEFAULT_REVIEWER_MODEL": "openai:gpt-4o",
+    "DEFAULT_REVIEWER_MODEL": "anthropic:claude-3-7-sonnet-20250219",
     "LOG_LEVEL": "INFO",
     "ENABLE_SEARCH_TOOL": "false",
     "REQUEST_TIMEOUT": "60",
     "MAX_RETRIES": "3",
+    "ANTHROPIC_REASONING_ENABLED": "true",
+    "ANTHROPIC_TEMPERATURE": "0.2",
 }
 
 
@@ -71,6 +73,8 @@ def load_env_config(env_file: Optional[str] = None) -> Dict[str, Any]:
         "DEFAULT_REVIEWER_MODEL",
         "REQUEST_TIMEOUT",
         "MAX_RETRIES",
+        "ANTHROPIC_REASONING_ENABLED",
+        "ANTHROPIC_TEMPERATURE",
     ]:
         if key in os.environ:
             config[key] = os.environ[key]
@@ -80,6 +84,17 @@ def load_env_config(env_file: Optional[str] = None) -> Dict[str, Any]:
         config["ENABLE_SEARCH_TOOL"] = True
     else:
         config["ENABLE_SEARCH_TOOL"] = False
+    
+    if config.get("ANTHROPIC_REASONING_ENABLED", "").lower() in ["true", "1", "yes"]:
+        config["ANTHROPIC_REASONING_ENABLED"] = True
+    else:
+        config["ANTHROPIC_REASONING_ENABLED"] = False
+    
+    if "ANTHROPIC_TEMPERATURE" in config:
+        try:
+            config["ANTHROPIC_TEMPERATURE"] = float(config["ANTHROPIC_TEMPERATURE"])
+        except ValueError:
+            config["ANTHROPIC_TEMPERATURE"] = 0.2
     
     if "REQUEST_TIMEOUT" in config:
         try:

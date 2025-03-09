@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Any, Union, Tuple
 from ..models import ReviewSpec, ReviewType, ReviewResult, FormatSpec
 from ..format.parser import FormatParser
 from ..tools.manager import ToolsManager
+from ..utils.reasoning import apply_reasoning_to_messages, get_anthropic_parameters, is_anthropic_model
 
 
 class ReviewManager:
@@ -173,18 +174,38 @@ class ReviewManager:
         # Get the reviewer's feedback
         self.logger.info(f"Calling reviewer model: {review_spec.reviewer_model}")
         
+        # Apply reasoning prompts if appropriate (for Claude 3.7 Sonnet or other Anthropic models)
+        config = self.client.config if hasattr(self.client, "config") else {}
+        is_anthropic = is_anthropic_model(review_spec.reviewer_model)
+        
+        if is_anthropic:
+            # Apply reasoning enhancements to messages
+            enhanced_messages = apply_reasoning_to_messages(
+                reviewer_messages, 
+                config, 
+                is_anthropic
+            )
+            
+            # Get Anthropic-specific parameters
+            anthropic_params = get_anthropic_parameters(config)
+        else:
+            enhanced_messages = reviewer_messages
+            anthropic_params = {}
+        
         # Call with or without tools/max_turns depending on whether tools are specified
         if tools is not None:
             review_response = self.client.chat.completions.create(
                 model=review_spec.reviewer_model,
-                messages=reviewer_messages,
+                messages=enhanced_messages,
                 tools=tools,
                 max_turns=max_turns,
+                **anthropic_params
             )
         else:
             review_response = self.client.chat.completions.create(
                 model=review_spec.reviewer_model,
-                messages=reviewer_messages,
+                messages=enhanced_messages,
+                **anthropic_params
             )
         
         review_feedback = review_response.choices[0].message.content
