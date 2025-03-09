@@ -7,6 +7,7 @@ the AISuite MCP platform for AI-to-AI peer review.
 
 import asyncio  # Used for async methods
 import logging
+import os
 from typing import Dict, List, Optional, Any, Union
 
 from aisuite import Client as AISuiteClient
@@ -16,6 +17,7 @@ from .orchestrator.orchestrator import MCPOrchestrator
 from .format.parser import FormatParser
 from .review.manager import ReviewManager
 from .tools.manager import ToolsManager
+from .utils.config import load_env_config, get_provider_configs
 
 
 class MCPClient:
@@ -31,6 +33,7 @@ class MCPClient:
         provider_configs: Dict[str, Dict[str, Any]] = None,
         aisuite_client: Optional[AISuiteClient] = None,
         logger: Optional[logging.Logger] = None,
+        env_file: Optional[str] = None,
     ):
         """
         Initialize the MCP Client.
@@ -39,8 +42,20 @@ class MCPClient:
             provider_configs: Configuration for different LLM providers
             aisuite_client: An existing AISuite client (optional)
             logger: Logger instance
+            env_file: Path to .env file (optional)
         """
         self.logger = logger or logging.getLogger("aisuite_mcp")
+        
+        # Load configuration from environment variables
+        self.config = load_env_config(env_file)
+        
+        # Configure logging
+        log_level = getattr(logging, self.config.get("LOG_LEVEL", "INFO"), logging.INFO)
+        logging.basicConfig(level=log_level)
+        
+        # If provider_configs not provided, try to load from env
+        if provider_configs is None:
+            provider_configs = get_provider_configs(self.config)
         
         # Set up AISuite client
         if aisuite_client:
