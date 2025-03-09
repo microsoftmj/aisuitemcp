@@ -5,14 +5,13 @@ This module provides the primary client interface for interacting with
 the AISuite MCP platform for AI-to-AI peer review.
 """
 
-import asyncio
+import asyncio  # Used for async methods
 import logging
 from typing import Dict, List, Optional, Any, Union
 
-import aisuite
 from aisuite import Client as AISuiteClient
 
-from .models import ReviewSpec, ReviewResult, FormatSpec, ReviewType
+from .models import ReviewSpec, ReviewResult, FormatSpec, ReviewType  # noqa: F401
 from .orchestrator.orchestrator import MCPOrchestrator
 from .format.parser import FormatParser
 from .review.manager import ReviewManager
