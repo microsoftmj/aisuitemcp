@@ -1,0 +1,111 @@
+Metadata-Version: 2.2
+Name: aisuite_mcp
+Version: 0.1.0
+Summary: Multi-Component Platform for AI-to-AI peer review built on AISuite
+Author: AI Suite MCP Team
+License: MIT
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: aisuite>=0.1.5
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: aiohttp>=3.8.0
+Requires-Dist: typing-extensions>=4.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.18.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.10.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Dynamic: requires-python
+
+# AISuite MCP: Multi-Component Platform for AI-to-AI Peer Review
+
+AISuite MCP extends the [AISuite](https://github.com/andrewyng/aisuite) library to enable AI-to-AI peer review through structured prompt-response frameworks. This platform facilitates advanced reasoning techniques such as chain-of-thought, self-consistency, and debate-style AI interactions, while allowing the originating AI to specify its desired response format.
+
+## Features
+
+- **AI-to-AI Peer Review**: Have one AI generate a response and another AI critique and improve it
+- **Flexible Review Mechanisms**: Support for standard review, debate mode, and self-consistency checks
+- **Format Specification**: Originating AI can specify desired response formats and structures
+- **Tool Integration**: Transparent access to tools for verification and enhanced reasoning
+- **Asynchronous Processing**: Support for both synchronous and asynchronous workflows
+
+## Installation
+
+```bash
+pip install aisuite-mcp
+```
+
+## Quick Start
+
+```python
+from aisuite_mcp import MCPClient
+
+# Initialize the client
+mcp_client = MCPClient(
+    provider_configs={
+        "openai": {"api_key": "your_openai_key"},
+        "anthropic": {"api_key": "your_anthropic_key"}
+    }
+)
+
+# Define review specification
+review_spec = {
+    "generator_model": "openai:gpt-4",
+    "reviewer_model": "anthropic:claude-3-opus",
+    "review_type": "standard",  # or "debate", "self-consistency"
+    "review_criteria": ["factual_accuracy", "reasoning", "completeness"],
+    "response_format": {
+        "structure": "json",
+        "sections": ["reasoning", "answer", "confidence"]
+    },
+    "tools": ["search", "calculator", "code_interpreter"]
+}
+
+# Get peer-reviewed response
+response = mcp_client.create_reviewed_completion(
+    prompt="Explain the implications of quantum computing on cryptography",
+    review_spec=review_spec
+)
+
+print(response.final_answer)
+```
+
+## Architecture
+
+AISuite MCP is built as a wrapper around AISuite, leveraging its unified interface to multiple LLM providers while adding multi-component orchestration capabilities. The architecture consists of:
+
+- **MCP Orchestrator**: Coordinates the workflow between different AI models and components
+- **Format Parser**: Handles parsing and enforcement of response format specifications
+- **Review Manager**: Implements various review strategies and processes  
+- **Tools Manager**: Manages tool registration, execution, and result integration
+
+## Format Specification
+
+The format specification allows the originating AI to define how it wants responses structured:
+
+```python
+format_spec = {
+    "structure": "json",   # or "markdown", "text"
+    "sections": ["reasoning", "answer", "confidence"],
+    "example": "{ \"reasoning\": \"...\", \"answer\": \"...\", \"confidence\": 0.95 }"
+}
+```
+
+## Review Mechanisms
+
+AISuite MCP supports multiple review mechanisms:
+
+- **Standard Review**: One AI generates, another reviews based on criteria
+- **Debate Mode**: Two AIs debate a question with multiple turns
+- **Self-Consistency**: Generate multiple reasoning paths and determine consensus
+
+## License
+
+MIT
