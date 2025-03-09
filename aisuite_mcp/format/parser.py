@@ -173,28 +173,43 @@ class FormatParser:
             f'"{section_name}":'
         ]
         
+        # Create patterns for all possible section headers to detect next sections
+        all_section_patterns = []
+        for pattern_base in ["##", "#", ":"]:
+            if pattern_base == ":":
+                all_section_patterns.append(f'"{pattern_base}"')
+                all_section_patterns.append(f"{pattern_base}")
+            else:
+                all_section_patterns.append(f"{pattern_base} ")
+        
         for pattern in patterns:
             pattern_lower = pattern.lower()
             if pattern_lower in content.lower():
                 # Find the start of the section
-                start_idx = content.lower().find(pattern_lower)
-                start_idx = content.find("\n", start_idx)
+                pattern_idx = content.lower().find(pattern_lower)
+                start_idx = content.find("\n", pattern_idx)
                 if start_idx == -1:
-                    start_idx = content.find(":", content.lower().find(pattern_lower))
+                    start_idx = content.find(":", pattern_idx)
                     if start_idx == -1:
                         continue
                     start_idx += 1
                 else:
                     start_idx += 1
                 
-                # Find the end of the section (next section or end of content)
+                # Find the end of the section (next section header or end of content)
                 end_idx = len(content)
-                for next_pattern in patterns:
-                    next_idx = content.lower().find(next_pattern.lower(), start_idx)
-                    if next_idx != -1 and next_idx < end_idx:
-                        end_idx = next_idx
                 
-                # Extract the section content
+                # Look for the next section header
+                lines = content[start_idx:].split('\n')
+                for i, line in enumerate(lines):
+                    line_lower = line.lower().strip()
+                    if i > 0 and (line_lower.startswith("##") or line_lower.startswith("#") or 
+                                 (line_lower.endswith(":") and not line_lower.startswith("   "))):
+                        # Found a new section header
+                        end_idx = start_idx + sum(len(l) + 1 for l in lines[:i])
+                        break
+                
+                # Extract the section content without including the next section's header
                 section_content = content[start_idx:end_idx].strip()
                 return section_content
         

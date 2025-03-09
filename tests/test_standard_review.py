@@ -71,14 +71,14 @@ class TestStandardReview(unittest.TestCase):
             review_type=ReviewType.STANDARD,
             response_format=FormatSpec(
                 structure=ResponseFormat.MARKDOWN,
-                sections=["Analysis", "Answer"],
+                sections=["Analysis", "Answer"]
             )
         )
         
         # Get peer-reviewed response
         result = self.client.create_reviewed_completion(
             prompt="Test prompt",
-            review_spec=review_spec,
+            review_spec=review_spec
         )
         
         # Verify the result
@@ -96,7 +96,14 @@ class TestStandardReview(unittest.TestCase):
         # Verify generator call
         generator_call = call_args_list[0]
         self.assertEqual(generator_call[1]["model"], "openai:gpt-3.5-turbo")
-        self.assertIn({"role": "user", "content": "Test prompt"}, generator_call[1]["messages"])
+        
+        # Modify the assertion to check if content contains "Test prompt" 
+        # instead of exact dictionary match, since format instructions are added
+        self.assertTrue(
+            any("Test prompt" in msg.get("content", "") 
+                for msg in generator_call[1]["messages"] 
+                if msg.get("role") == "user")
+        )
         
         # Verify reviewer call
         reviewer_call = call_args_list[1]

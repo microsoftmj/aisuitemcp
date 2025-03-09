@@ -82,26 +82,22 @@ def test_basic_review():
         print(result.final_answer)
         
         print("\n✅ Test completed successfully!")
-        return True
+        assert True, "Test completed successfully"
     except Exception as e:
         print(f"\n❌ Test failed with error: {str(e)}")
-        return False
+        assert False, f"Test failed with error: {str(e)}"
 
 def main():
     """Run tests and report results"""
     print("Starting AISuite MCP implementation test...")
     
     # Run tests
-    basic_test_success = test_basic_review()
+    test_basic_review()
     
     # Report results
     print("\n===== Test Results =====")
-    print(f"Basic Review Test: {'✅ PASSED' if basic_test_success else '❌ FAILED'}")
-    
-    if basic_test_success:
-        print("\nAISuite MCP implementation is working correctly!")
-    else:
-        print("\nAISuite MCP implementation has issues that need to be fixed.")
+    print(f"Basic Review Test: ✅ PASSED")
+    print("\nAISuite MCP implementation is working correctly!")
     
 if __name__ == "__main__":
     main()

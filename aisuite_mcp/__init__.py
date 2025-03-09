@@ -6,7 +6,7 @@ structured prompt-response frameworks.
 """
 
 from .client import MCPClient
-from .models import ReviewSpec, FormatSpec, ResponseFormat, ReviewType, ReviewCriteria
+from .models import ReviewSpec, FormatSpec, ResponseFormat, ReviewType, ReviewCriteria, ReviewResult
 
 __version__ = "0.1.0"
 
@@ -17,4 +17,5 @@ __all__ = [
     "ResponseFormat",
     "ReviewType",
     "ReviewCriteria",
+    "ReviewResult",
 ]
