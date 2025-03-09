@@ -8,7 +8,7 @@ of Claude 3.7 Sonnet in peer review scenarios.
 import logging
 import os
 from aisuite_mcp import MCPClient
-from aisuite_mcp.models import ReviewSpec, ReviewType, FormatSpec
+from aisuite_mcp.models import ReviewSpec, ReviewType, FormatSpec, ResponseFormat
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -53,7 +53,7 @@ def main():
         reviewer_model="anthropic:claude-3-7-sonnet-20250219",
         review_type=ReviewType.STANDARD,
         review_criteria=review_criteria,
-        response_format=FormatSpec.MARKDOWN,
+        response_format=FormatSpec(structure=ResponseFormat.MARKDOWN),
     )
     
     # Run the peer review
